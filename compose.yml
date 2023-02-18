@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+
+  database:
+    image: mariadb
+    environment:
+      MARIADB_RANDOM_ROOT_PASSWORD: true
+
+  cache:
+    image: redis
+
+  nb-mill-client:
+    build: ./nb-mill-client
+    volumes:
+      - ./nb-mill-client:/nb-mill-client
+    depends_on:
+      - jobs
+      - cache
+      - database
+
+  jobs:
+    image: redis
+
+  runner:
+    build: ./runner
+  
+  entry:
+    build: ./entry
+    ports:
+      - 80:80
+    depends_on:
+      - nb-mill-client
