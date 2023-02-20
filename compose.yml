@@ -3,30 +3,35 @@ version: "3.9"
 services:
 
   database:
-    image: mariadb
+    build: database
+    volumes:
+      - ./database/initdb.d:/docker-entrypoint-initdb.d
     environment:
       MARIADB_RANDOM_ROOT_PASSWORD: true
+      MARIADB_PASSWORD: user-secret
 
   cache:
     image: redis
 
-  nb-mill-client:
-    build: ./nb-mill-client
+  js-app:
+    build: ./js-app
+    environment:
+      MARIADB_PASSWORD: user-secret
     volumes:
-      - ./nb-mill-client:/nb-mill-client
+      - ./js-app:/js-app
     depends_on:
       - jobs
       - cache
       - database
 
-  jobs:
+  run-archive:
     image: redis
 
   runner:
     build: ./runner
   
-  entry:
-    build: ./entry
+  load-balancer:
+    build: ./load-balancer
     ports:
       - 80:80
     depends_on:
