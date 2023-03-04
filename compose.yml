@@ -10,8 +10,16 @@ services:
       MARIADB_RANDOM_ROOT_PASSWORD: true
       MARIADB_PASSWORD: user-secret
 
-  cache:
-    image: redis
+  es: 
+    image: elasticsearch:8.6.
+
+  nb-puller:
+    build: ./nb-puller
+
+  nb-server:
+    build: ./nb-server
+    volumes:
+      - ./nb-server/nginx.conf:/etc/nginx/nginx.conf
 
   js-app:
     build: ./js-app
@@ -20,19 +28,17 @@ services:
     volumes:
       - ./js-app:/js-app
     depends_on:
-      - jobs
-      - cache
       - database
-
-  run-archive:
-    image: redis
 
   runner:
     build: ./runner
   
   load-balancer:
     build: ./load-balancer
+    volumes:
+      - ./load-balancer/nginx.conf:/etc/nginx/nginx.conf
     ports:
       - 80:80
     depends_on:
-      - nb-mill-client
+      - js-app
+      - nb-server
