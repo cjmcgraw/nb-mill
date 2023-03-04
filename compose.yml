@@ -11,10 +11,18 @@ services:
       MARIADB_PASSWORD: user-secret
 
   es: 
-    image: elasticsearch:8.6.
+    image: elasticsearch
 
   nb-puller:
     build: ./nb-puller
+    volumes:
+      - ./nb-puller:/app
+    environment:
+      GIT_KEY_LOCATION: /git-keys/id_ed25519
+    secrets:
+      - source: git_ssh_keys
+        target: /git-keys
+        mode: 0400
 
   nb-server:
     build: ./nb-server
@@ -32,7 +40,7 @@ services:
 
   runner:
     build: ./runner
-  
+
   load-balancer:
     build: ./load-balancer
     volumes:
@@ -41,4 +49,8 @@ services:
       - 80:80
     depends_on:
       - js-app
-      - nb-server
+      - nb-serve
+
+secrets:
+  git_ssh_keys:
+    file: ~/.ssh/personal/git
