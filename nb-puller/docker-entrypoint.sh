@@ -12,6 +12,10 @@ function log {
     echo "worker=${uuid} run=${run} $@"
 }
 
+mkdir -p /tmp/
+rm -f /tmp/finished && touch /tmp/finished
+rm -f /tmp/failures && touch /tmp/failures
+
 
 while true; do
     run=$(openssl rand -hex 16);
